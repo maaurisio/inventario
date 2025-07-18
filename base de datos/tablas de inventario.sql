@@ -45,8 +45,7 @@ INSERT INTO categorias_unidad_medida (codigo_categoria_udm, nombre) VALUES ('P',
 
 -- 3. Crear tabla unidades_de_medida
 CREATE TABLE unidades_de_medida (
-    codigo_udm SERIAL PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL UNIQUE,
+    nombre VARCHAR(50) PRIMARY KEY,
     descripcion VARCHAR(50) NOT NULL,
     categoria_udm CHAR(1) NOT NULL,
     CONSTRAINT categoria_udm_fk FOREIGN KEY (categoria_udm)
@@ -61,6 +60,8 @@ INSERT INTO unidades_de_medida (nombre, descripcion, categoria_udm) VALUES ('d',
 INSERT INTO unidades_de_medida (nombre, descripcion, categoria_udm) VALUES ('g', 'gramos', 'P');
 INSERT INTO unidades_de_medida (nombre, descripcion, categoria_udm) VALUES ('kg', 'kilogramos', 'P');
 INSERT INTO unidades_de_medida (nombre, descripcion, categoria_udm) VALUES ('lb', 'libras', 'P');
+
+select * from unidades_de_medida;
 
 -- 4. Crear tabla productos
 CREATE TABLE productos (
@@ -249,9 +250,21 @@ VALUES (NOW(), 'Venta 2', 1, -4);
 INSERT INTO historial_stock (fecha, referencia, productos, cantidad)
 VALUES (NOW(), 'Venta 3', 1, -8);
 
+/*
 select * from historial_stock;
 
 select prov.identificador, prov.tipo_documento,td.descripcion, prov.nombre, prov.telefono, prov.correo, prov.direccion
 from proveedores prov, tipo_documentos td
 where prov.tipo_documento = td.codigo
 and upper(nombre) like '%A%'
+
+ALTER TABLE proveedores 
+ALTER COLUMN telefono TYPE VARCHAR(15);
+*/
+
+select prod.codigo_producto, prod.nombre AS nombre_producto, udm.nombre AS numbre_udm, udm.descripcion AS descripcion_udm,
+prod.precio_venta, prod.tiene_iva, prod.coste, prod.categoria, cat.nombre AS nombre_categoria, stock
+from productos prod, unidades_de_medida udm, categorias cat
+where prod.unidad_de_medida = udm.nombre
+and prod.categoria = cat.codigo_categoria
+and upper (prod.nombre) like '%C%';
