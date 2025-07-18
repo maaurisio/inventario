@@ -251,4 +251,7 @@ VALUES (NOW(), 'Venta 3', 1, -8);
 
 select * from historial_stock;
 
-
+select prov.identificador, prov.tipo_documento,td.descripcion, prov.nombre, prov.telefono, prov.correo, prov.direccion
+from proveedores prov, tipo_documentos td
+where prov.tipo_documento = td.codigo
+and upper(nombre) like '%A%'
