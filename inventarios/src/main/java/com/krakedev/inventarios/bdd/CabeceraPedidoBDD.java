@@ -79,44 +79,59 @@ public class CabeceraPedidoBDD {
 	}
 	public void actualizarYrecibirPedido(CabeceraPedido cabPedido) throws KrakeDevException {
 	    Connection con = null;
-	    PreparedStatement ps = null;
-	    PreparedStatement psAct = null;
+	    PreparedStatement psCabecera = null;
+	    PreparedStatement psDetalle = null;
 
 	    try {
 	        con = ConexionBDD.obtenerConexion();
-	        ps = con.prepareStatement("UPDATE cabecera_pedido SET estado = 'R' WHERE numero = ?");
-	        ps.setInt(1, cabPedido.getCodigo());
-	        ps.executeUpdate();
 
-	        // Actualizar los detalles
-	        ArrayList<DetallePedido> detallesPedido = cabPedido.getDetalles();
-	        for (DetallePedido det : detallesPedido) {
-	            psAct = con.prepareStatement(
-	                "UPDATE detalle_pedido SET cantidad_recibida = ?, subtotal = ? WHERE codigo_detalle_pedido = ?;"
-	            );
-	            psAct.setInt(1, det.getCantidadRecibida());
+	        // 1) Actualizar estado de la cabecera_pedido a 'R' (Recibido)
+	        String sqlActualizarCabecera = "UPDATE cabecera_pedido SET estado = 'R' WHERE numero = ?";
+	        psCabecera = con.prepareStatement(sqlActualizarCabecera);
+	        psCabecera.setInt(1, cabPedido.getCodigo());
+	        int filasActualizadas = psCabecera.executeUpdate();
 
-	            BigDecimal pv = det.getProducto().getPrecioVenta();
-	            BigDecimal cantidad = new BigDecimal(det.getCantidadRecibida()); // o cantidadSolicitada si subtotal va con solicitada
-	            BigDecimal subtotal = pv.multiply(cantidad);
-
-	            psAct.setBigDecimal(2, subtotal);
-	            psAct.setInt(3, det.getCodigo()); // clave primaria detalle_pedido
-
-	            psAct.executeUpdate();
+	        if (filasActualizadas == 0) {
+	            throw new KrakeDevException("No se encontró la cabecera con código: " + cabPedido.getCodigo());
 	        }
 
-	        System.out.println("Pedido recibido y actualizado correctamente.");
+	        // 2) Actualizar cada detalle relacionado con esta cabecera, producto y detalle específico
+	        String sqlActualizarDetalle = ("UPDATE detalle_pedido\r\n"
+	        		+ "            SET cantidad_recibida = ?, subtotal = ?\r\n"
+	        		+ "            WHERE codigo_detalle_pedido = ? AND cabecera_pedido = ? AND producto = ?");
+
+	        psDetalle = con.prepareStatement(sqlActualizarDetalle);
+
+	        for (DetallePedido det : cabPedido.getDetalles()) {
+	            int cantidadRecibida = det.getCantidadRecibida();
+	            BigDecimal precioVenta = det.getProducto().getPrecioVenta();
+	            BigDecimal subtotal = precioVenta.multiply(BigDecimal.valueOf(cantidadRecibida));
+
+	            psDetalle.setInt(1, cantidadRecibida);
+	            psDetalle.setBigDecimal(2, subtotal);
+	            psDetalle.setInt(3, det.getCodigo());
+	            psDetalle.setInt(4, cabPedido.getCodigo());
+	            psDetalle.setInt(5, det.getProducto().getCodigo());
+
+	            int filasDetalle = psDetalle.executeUpdate();
+
+	            if (filasDetalle == 0) {
+	                throw new KrakeDevException("No se encontró detalle con código: " + det.getCodigo()
+	                    + ", cabecera: " + cabPedido.getCodigo()
+	                    + " y producto: " + det.getProducto().getCodigo());
+	            }
+	        }
+
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	        throw new KrakeDevException("Error al actualizar y recibir pedido. Detalle: " + e.getMessage());
 	    } finally {
-	        if (con != null) {
-	            try {
-	                con.close();
-	            } catch (SQLException e) {
-	                e.printStackTrace();
-	            }
+	        try {
+	            if (psDetalle != null) psDetalle.close();
+	            if (psCabecera != null) psCabecera.close();
+	            if (con != null) con.close();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
 	        }
 	    }
 	}
