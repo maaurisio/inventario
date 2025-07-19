@@ -86,6 +86,9 @@ INSERT INTO productos (
 ) VALUES (
     'Coca Cola', 'u', 12.50, TRUE, 9.30, 1, 25
 );
+
+select * from productos;
+
 --5.
 create table tipo_documentos (
 codigo char(1) not null,
@@ -199,6 +202,7 @@ VALUES (NOW(), 50.00, 6.00, 56);
 INSERT INTO cabecera_ventas (fecha, total_sin_iva, iva, total)
 VALUES (NOW(), 100.00, 12.00, 112);
 
+select * from cabecera_pedido;
 --11.
 create table detalle_ventas(
 codigo_detalle_ventas serial not null,
@@ -261,10 +265,10 @@ and upper(nombre) like '%A%'
 ALTER TABLE proveedores 
 ALTER COLUMN telefono TYPE VARCHAR(15);
 */
-
+--cast para money
 select prod.codigo_producto, prod.nombre AS nombre_producto, udm.nombre AS numbre_udm, udm.descripcion AS descripcion_udm,
 prod.precio_venta, prod.tiene_iva, prod.coste, prod.categoria, cat.nombre AS nombre_categoria, stock
 from productos prod, unidades_de_medida udm, categorias cat
 where prod.unidad_de_medida = udm.nombre
 and prod.categoria = cat.codigo_categoria
-and upper (prod.nombre) like '%C%';
+and upper (prod.nombre) like '%P%';
