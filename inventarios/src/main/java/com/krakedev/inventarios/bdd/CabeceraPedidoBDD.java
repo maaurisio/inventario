@@ -33,7 +33,7 @@ public class CabeceraPedidoBDD {
 			ps.setInt(1, cabPedido.getProveedor().getIdentificador());
 			// Usar timestampSinMilis en lugar de fechaSQL
 			ps.setTimestamp(2, timestampSinMilis); // ✅ ahora guarda fecha y hora
-			ps.setString(3, "R");
+			ps.setString(3, "S");// Solicitado
 			ps.executeUpdate();
 
 			rsClave = ps.getGeneratedKeys();
@@ -77,4 +77,48 @@ public class CabeceraPedidoBDD {
 			}
 		}
 	}
+	public void actualizarYrecibirPedido(CabeceraPedido cabPedido) throws KrakeDevException {
+	    Connection con = null;
+	    PreparedStatement ps = null;
+	    PreparedStatement psAct = null;
+
+	    try {
+	        con = ConexionBDD.obtenerConexion();
+	        ps = con.prepareStatement("UPDATE cabecera_pedido SET estado = 'R' WHERE numero = ?");
+	        ps.setInt(1, cabPedido.getCodigo());
+	        ps.executeUpdate();
+
+	        // Actualizar los detalles
+	        ArrayList<DetallePedido> detallesPedido = cabPedido.getDetalles();
+	        for (DetallePedido det : detallesPedido) {
+	            psAct = con.prepareStatement(
+	                "UPDATE detalle_pedido SET cantidad_recibida = ?, subtotal = ? WHERE codigo_detalle_pedido = ?;"
+	            );
+	            psAct.setInt(1, det.getCantidadRecibida());
+
+	            BigDecimal pv = det.getProducto().getPrecioVenta();
+	            BigDecimal cantidad = new BigDecimal(det.getCantidadRecibida()); // o cantidadSolicitada si subtotal va con solicitada
+	            BigDecimal subtotal = pv.multiply(cantidad);
+
+	            psAct.setBigDecimal(2, subtotal);
+	            psAct.setInt(3, det.getCodigo()); // clave primaria detalle_pedido
+
+	            psAct.executeUpdate();
+	        }
+
+	        System.out.println("Pedido recibido y actualizado correctamente.");
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw new KrakeDevException("Error al actualizar y recibir pedido. Detalle: " + e.getMessage());
+	    } finally {
+	        if (con != null) {
+	            try {
+	                con.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	    }
+	}
+
 }
