@@ -89,6 +89,7 @@ INSERT INTO productos (
 
 select * from productos;
 
+
 --5.
 create table tipo_documentos (
 codigo char(1) not null,
@@ -254,9 +255,9 @@ VALUES (NOW(), 'Venta 2', 1, -4);
 INSERT INTO historial_stock (fecha, referencia, productos, cantidad)
 VALUES (NOW(), 'Venta 3', 1, -8);
 
-/*
-select * from historial_stock;
 
+select * from historial_stock;
+/*
 select prov.identificador, prov.tipo_documento,td.descripcion, prov.nombre, prov.telefono, prov.correo, prov.direccion
 from proveedores prov, tipo_documentos td
 where prov.tipo_documento = td.codigo
@@ -272,3 +273,23 @@ from productos prod, unidades_de_medida udm, categorias cat
 where prod.unidad_de_medida = udm.nombre
 and prod.categoria = cat.codigo_categoria
 and upper (prod.nombre) like '%P%';
+
+update cabecera_pedido set estado = 'S' where numero = 8
+update productos set tiene_iva = 'false' where codigo_producto = 2
+select * from productos;
+select * from cabecera_pedido;
+select * from estado_pedido;
+select * from detalle_pedido;
+select * from historial_stock;
+
+update detalle_pedido
+set cantidad_recibida = 40, subtotal = 20
+where codigo_detalle_pedido = 7;
+
+UPDATE detalle_pedido
+SET cantidad_recibida = ?, subtotal = ?
+WHERE codigo_detalle_pedido = ? AND cabecera_pedido = ?;
+SELECT * FROM detalle_pedido WHERE cabecera_pedido = 3;
+
+select * from cabecera_ventas;
+select * from detalle_ventas;

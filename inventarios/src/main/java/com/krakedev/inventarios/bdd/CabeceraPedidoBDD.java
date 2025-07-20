@@ -42,7 +42,6 @@ public class CabeceraPedidoBDD {
 			if (rsClave.next()) {
 				codigoCabecera = rsClave.getInt(1);
 			}
-
 			// obtener la lista
 			ArrayList<DetallePedido> detallesPedido = cabPedido.getDetalles();
 			DetallePedido det;

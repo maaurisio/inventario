@@ -12,7 +12,7 @@ import com.krakedev.inventarios.entidades.CabeceraPedido;
 import com.krakedev.inventarios.excepciones.KrakeDevException;
 
 @Path("cabPedidos")
-public class SeriviciosCabeceraPedidos {
+public class ServiciosCabeceraPedidos {
 	@Path("crear")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
