@@ -20,7 +20,7 @@ public class ServiciosTipoDocumentos {
 	@Path("recuperar")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response obtenerClientes() {
+	public Response obtenerTodos() {
 		TipoDocumentosBDD tdocs = new TipoDocumentosBDD();
 		ArrayList<TipoDocumento> docst = null;
 		try {

@@ -267,6 +267,13 @@ ALTER TABLE proveedores
 ALTER COLUMN telefono TYPE VARCHAR(15);
 */
 --cast para money
+select pro.codigo_producto, pro.nombre, pro.unidad_de_medida, pro.precio_venta,
+pro.tiene_iva, pro.coste, pro.categoria, pro.stock
+from productos pro
+where codigo_producto = 1;
+
+select * from productos;
+
 select prod.codigo_producto, prod.nombre AS nombre_producto, udm.nombre AS numbre_udm, udm.descripcion AS descripcion_udm,
 prod.precio_venta, prod.tiene_iva, prod.coste, prod.categoria, cat.nombre AS nombre_categoria, stock
 from productos prod, unidades_de_medida udm, categorias cat
@@ -281,6 +288,36 @@ select * from cabecera_pedido;
 select * from estado_pedido;
 select * from detalle_pedido;
 select * from historial_stock;
+select * from proveedores;
+
+SELECT *,
+    (SELECT nombre 
+     FROM productos 
+     WHERE productos.codigo_producto = detalle_pedido.producto) AS nombre_producto
+FROM detalle_pedido 
+WHERE cabecera_pedido IN (
+    SELECT numero
+    FROM cabecera_pedido 
+    WHERE proveedor = 1728632256
+);
+
+SELECT 
+    detPed.codigo_detalle_pedido AS codigo_detalle,
+    cabPed.numero AS numero_pedido,
+    cabPed.proveedor AS identificador_proveedor,
+    cabPed.fecha AS fecha_pedido,
+    cabPed.estado AS estado_pedido,
+    detPed.producto AS codigo_producto,
+    pro.nombre AS nombre_producto,
+    detPed.cantidad_solicitada,
+    detPed.cantidad_recibida,
+    detPed.subtotal
+FROM productos pro, detalle_pedido detPed, cabecera_pedido cabPed
+WHERE pro.codigo_producto = detPed.producto
+  AND detPed.cabecera_pedido = cabPed.numero
+  AND cabPed.proveedor = 1728632256;
+
+
 
 update detalle_pedido
 set cantidad_recibida = 40, subtotal = 20
@@ -291,5 +328,36 @@ SET cantidad_recibida = ?, subtotal = ?
 WHERE codigo_detalle_pedido = ? AND cabecera_pedido = ?;
 SELECT * FROM detalle_pedido WHERE cabecera_pedido = 3;
 
-select * from cabecera_ventas;
-select * from detalle_ventas;
+update productos set nombre = ?, unidad_de_medida= ?, precio_venta= ?,
+tiene_iva= ?, coste= ?, categoria= ?, stock= ?
+where codigo_producto = 2;
+
+update categorias set nombre= ?, categoria_padre= ?
+where codigo_categoria = ?
+
+select * from productos;
+select * from categorias;
+select * from cabecera_pedido;
+select * from detalle_pedido;
+select * from proveedores;
+SELECT
+    detPed.codigo_detalle_pedido AS codigo_detalle,
+    cabPed.numero AS numero_pedido,
+    cabPed.proveedor AS identificador_proveedor,
+    cabPed.fecha AS fecha_pedido,
+    cabPed.estado AS estado_pedido,
+    detPed.producto AS codigo_producto,
+    pro.nombre AS nombre_producto,
+    detPed.cantidad_solicitada,
+    detPed.cantidad_recibida,
+    detPed.subtotal
+FROM detalle_pedido detPed
+JOIN cabecera_pedido cabPed ON detPed.cabecera_pedido = cabPed.numero
+JOIN productos pro ON pro.codigo_producto = detPed.producto
+WHERE CAST(cabPed.proveedor AS TEXT) LIKE '%1728632256%' -- aquí tu valor de prueba
+ORDER BY cabPed.numero, detPed.codigo_detalle_pedido;
+
+
+select * from proveedores;
+select prov.identificador, prov.nombre, prov.telefono, prov.correo, prov.direccion from proveedores prov
+WHERE prov.identificador = 1728632256;

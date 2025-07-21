@@ -1,5 +1,7 @@
 package com.krakedev.inventarios.entidades;
 
+import java.util.ArrayList;
+
 public class Proveedor {
 	private int identificador;
 	private TipoDocumento tipoDocumento;
@@ -7,10 +9,21 @@ public class Proveedor {
 	private String telefono;
 	private String correo;
 	private String direccion;
+	private ArrayList<DetallePedido> detalles = new ArrayList<>();
 
 	public Proveedor() {
 	}
 
+	public Proveedor(int identificador, TipoDocumento tipoDocumento, String nombre, String telefono, String correo,
+			String direccion, ArrayList<DetallePedido> detalles) {
+		this.identificador = identificador;
+		this.tipoDocumento = tipoDocumento;
+		this.nombre = nombre;
+		this.telefono = telefono;
+		this.correo = correo;
+		this.direccion = direccion;
+		this.detalles = detalles;
+	}
 	public Proveedor(int identificador, TipoDocumento tipoDocumento, String nombre, String telefono, String correo,
 			String direccion) {
 		this.identificador = identificador;
@@ -69,10 +82,12 @@ public class Proveedor {
 		this.direccion = direccion;
 	}
 
-	@Override
-	public String toString() {
-		return "Proveedor [identificador=" + identificador + ", tipoDocumento=" + tipoDocumento + ", nombre=" + nombre
-				+ ", telefono=" + telefono + ", correo=" + correo + ", direccion=" + direccion + "]";
+	public ArrayList<DetallePedido> getDetalles() {
+		return detalles;
+	}
+
+	public void setDetalles(ArrayList<DetallePedido> detalles) {
+		this.detalles = detalles;
 	}
 
 }
